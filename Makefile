@@ -1,28 +1,62 @@
 IMG := ExOS.img
-BOOT_BIN  := boot.img
-KERNEL_BIN := kernel.img
-BOOT_SRC := boot.asm
-KERNEL_SRC := kernel.asm
+OS_SYS := os.sys
+
+IPL_SRC := ipl.asm
+IPL_BIN := ipl.img
+
+PREBOOT_SRC := preboot.asm
+PREBOOT_BIN := preboot.img
+
+BOOTPACK_SRC := bootpack.c
+BOOTPACK_OBJ := bootpack.o
+BOOTPACK_BIN := bootpack.bin
+
+FUNC_SRC := func.asm
+FUNC_OBJ := func.o
+
 ASM := nasm
 ASM_OP := -f bin
 
-BIN  += $(BOOT_BIN) $(KERNEL_BIN) $(IMG)
+GCC := gcc
+GCC_OP := -c -m32 -fno-pic
 
-default: image
+LD := ld
+LD_OP := -m elf_i386 -e OSMain
 
-image: boot kernel
-	cat $(BOOT_BIN) $(KERNEL_BIN) > $(IMG)
+BIN  += $(IPL_BIN) $(PREBOOT_BIN) $(BOOTPACK_BIN) $(BOOTPACK_OBJ) $(FUNC_BIN) $(FUNC_OBJ) $(IMG)
 
-boot: $(BOOT_SRC)
-	$(ASM) $(ASM_OP) $(BOOT_SRC) -o $(BOOT_BIN)
+default: $(IMG)
 
-kernel: $(KERNEL_SRC)
-	$(ASM) $(ASM_OP) $(KERNEL_SRC) -o $(KERNEL_BIN)
+
+$(IMG): $(IPL_BIN) $(OS_SYS)
+	cat $(IPL_BIN) $(OS_SYS) > $(IMG)
+
+$(OS_SYS): $(PREBOOT_BIN) $(BOOTPACK_BIN)
+	cat $(PREBOOT_BIN) $(BOOTPACK_BIN) > $(OS_SYS)
+
+$(IPL_BIN): $(IPL_SRC)
+	$(ASM) $(ASM_OP) $(IPL_SRC) -o $(IPL_BIN)
+
+$(PREBOOT_BIN): $(PREBOOT_SRC)
+	$(ASM) $(ASM_OP) $(PREBOOT_SRC) -o $(PREBOOT_BIN)
+
+$(BOOTPACK_BIN): $(BOOTPACK_OBJ) $(FUNC_OBJ)
+	$(LD) $(LD_OP) -o $(BOOTPACK_BIN) -Tos.S $(BOOTPACK_OBJ) $(FUNC_OBJ)
+
+$(BOOTPACK_OBJ): $(BOOTPACK_SRC)
+	$(GCC) $(GCC_OP) -o $(BOOTPACK_OBJ) $(BOOTPACK_SRC)
+
+$(FUNC_OBJ): $(FUNC_SRC)
+	$(ASM) -f elf32 $(FUNC_SRC) -o $(FUNC_OBJ)
 
 run: $(IMG)
-	qemu-system-x86_64 -fda $(IMG)
+	qemu-system-i386 -fda $(IMG)
+
+debug: $(IMG)
+	qemu-system-i386 -m 32 -localtime -vga std -fda $(IMG) -gdb tcp:10000 -S &
 
 clean-all:
+	rm -rf $(BIN) $(IMG)
+
+clean:
 	rm -rf $(BIN)
-clean: $(BIN)
-	rm $(BIN)
