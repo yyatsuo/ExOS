@@ -4,9 +4,12 @@ void write_mem8(int addr, int data);
 void OSMain(void)
 {
   int i;
+  char *p;
+
   for(i = 0x0a0000; i < 0xaffff; i++)
   {
-    write_mem8(i, i&0x0f);
+    p = (char *)i;
+    *p = i & 0x0f;
   }
 
   for(;;)
