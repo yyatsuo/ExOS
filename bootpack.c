@@ -6,7 +6,7 @@ void OSMain(void)
   int i;
   for(i = 0x0a0000; i < 0xaffff; i++)
   {
-    write_mem8(i, 15);
+    write_mem8(i, i&0x0f);
   }
 
   for(;;)
