@@ -5,7 +5,7 @@ ORG 0x7c00
 JMP entry;
 NOP
 
-NCYL  EQU 10    ; Num of Cyliders to be read
+CYLS  EQU 10    ; Num of Cyliders to be read
 
 ; Program Entry Point
 entry:
@@ -51,8 +51,10 @@ next:
   JB    read        ; goto read
   MOV   DH, 0       ; else DH = 0
   ADD   CH, 1       ; CH++
-  CMP   CH, NCYL    ; if CH < NCYL then
+  CMP   CH, CYLS    ; if CH < NCYL then
   JB    read        ; goto read
+
+  MOV   [0x0FF0],CH ; CYLS
   JMP   0x8400
 
 

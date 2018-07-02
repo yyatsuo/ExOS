@@ -78,7 +78,7 @@ pipelineflush:
   MOV   ESI, DSKCAC0+512
   MOV   EDI, DSKCAC+512
   MOV   ECX, 0
-  MOV   CL, BYTE [CYLS]
+  MOV   CL,BYTE [CYLS]
   IMUL  ECX, 512*18*2/4
   SUB   ECX, 512/4
   CALL  memcpy
@@ -96,7 +96,7 @@ pipelineflush:
 
 skip:
   MOV   ESP, [EBX+12]
-  JMP   DWORD 2*8:0x0000001b
+  JMP   DWORD 2*8:0x00000000
 
 waitkbdout:
   IN    AL, 0x64

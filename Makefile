@@ -23,7 +23,7 @@ GCC_OP := -c -m32 -fno-pic
 LD := ld
 LD_OP := -m elf_i386 -e OSMain
 
-BIN  += $(IPL_BIN) $(PREBOOT_BIN) $(BOOTPACK_BIN) $(BOOTPACK_OBJ) $(FUNC_BIN) $(FUNC_OBJ) $(IMG)
+BIN  += $(IPL_BIN) $(PREBOOT_BIN) $(BOOTPACK_BIN) $(BOOTPACK_OBJ) $(FUNC_BIN) $(FUNC_OBJ) $(OS_SYS) $(IMG)
 
 default: $(IMG)
 
@@ -53,7 +53,7 @@ run: $(IMG)
 	qemu-system-i386 -fda $(IMG)
 
 debug: $(IMG)
-	qemu-system-i386 -m 32 -localtime -vga std -fda $(IMG) -gdb tcp:10000 -S &
+	qemu-system-i386 -fda $(IMG) -gdb tcp::10000 -S &
 
 clean-all:
 	rm -rf $(BIN) $(IMG)
