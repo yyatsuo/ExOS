@@ -25,15 +25,24 @@ void box_fill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0, 
 #define COL8_008484 14     /* 0x00,0x84,0x84, 14,dark cyan       */
 #define COL8_848484 15     /* 0x84,0x84,0x84, 15,dark gray       */
 
+typedef struct {
+  char cyls, leds, vmode, reserve;
+  short scrnx, scrny;
+  char *vram;
+} BootInfo;
+
 void OSMain(void)
 {
   char *vram;
   int xsize, ysize;
+  BootInfo *binfo;
 
   init_palette();
-  vram = (char *) 0xa0000;
-  xsize = 320;
-  ysize = 200;
+
+  binfo = (BootInfo *)0x0FF0;
+  xsize = binfo->scrnx;
+  ysize = binfo->scrny;
+  vram = binfo->vram;
 
   box_fill8(vram, xsize, COL8_008484,     0, 0,         xsize-1, ysize-29);
   box_fill8(vram, xsize, COL8_C6C6C6,     0, ysize-28,  xsize-1, ysize-28);
